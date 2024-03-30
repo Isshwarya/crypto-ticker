@@ -1,0 +1,4 @@
+python-binance==1.0.19
+websocket-client==1.7.0
+sqlalchemy==2.0.29
+psycopg2==2.9.9

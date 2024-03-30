@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: postgresql
+    image: postgres
+    
+    ports:
+      - 5432:5432
+    volumes:
+      - data01:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=app_test
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=secret
+    restart: always
+  data_receiver:
+    image: data_receiver:latest
+    networks:
+      - elastic
+    environment:
+      - POSTGRES_NAME=app_test
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=secret
+      - BINANCE_API_KEY=Q2hYHO2MgMrbOtfhqSwRs2lOHKkDHQvWP9bLY1Ndwu3IDygrUpef5csbsowfTcVs
+      - BINANCE_API_SECRET=3fwhmOkjAADJVTfTx3xKyiivdTWhucGYMS4jIL1teAsIMtpG1RJ2MCAqgWEIQA6q
+    restart: always
+    depends_on:
+      - db
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
