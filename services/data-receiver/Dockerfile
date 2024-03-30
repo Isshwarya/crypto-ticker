@@ -2,14 +2,10 @@ FROM python:3.8
 
 LABEL MAINTAINER "Isshwarya"
 
-RUN apt-get update && apt-get install -y git unzip
+RUN git clone https://github.com/Isshwarya/crypto-ticker.git
 
-RUN git clone https://github.com/Isshwarya/WordProcessor.git
+WORKDIR /crypto-ticker
 
-WORKDIR /WordProcessor
+RUN pip install -r /crypto-ticker/services/data-receiver/requirements.txt
 
-ADD ./data/downloaded_files.zip /WordProcessor/data/downloaded_files.zip
-
-RUN pip install -r requirements.txt
-
-CMD ["sh", "-c", "if [ ! -d ./data/downloaded_files ]; then unzip /WordProcessor/data/downloaded_files.zip -d /WordProcessor/data/; fi && export PYTHONPATH=. && python ./scripts/word_analyzer.py"]
+CMD ["sh", "-c", "export PYTHONPATH=. && python /crypto-ticker/services/data-receiver/binance_websock.py -k $BINANCE_API_KEY -s $BINANCE_API_SECRET -d -n $POSTGRES_NAME -u $POSTGRES_USER -p $POSTGRES_PASSWORD"]
