@@ -12,7 +12,7 @@ from lib.utils import every
 class DataReceiver(object):
 
     def __init__(self, api_key, api_secret, interval, symbols,
-                 db_name, db_user_name, db_password,
+                 db_name, db_host, db_user_name, db_password,
                  db_update_interval):
         self.api_key = api_key
         self.api_secret = api_secret
@@ -26,12 +26,12 @@ class DataReceiver(object):
         client = asyncio.run(AsyncClient.create(self.api_key, self.api_secret))
         self.bm = BinanceSocketManager(client)
         self.loop = asyncio.get_event_loop()
-        self.initialize_db(db_name, db_user_name, db_password)
+        self.initialize_db(db_name, db_host, db_user_name, db_password)
         self.crypto_price_objects = []
 
-    def initialize_db(self, db_name, db_user_name,db_password):
+    def initialize_db(self, db_name, db_host, db_user_name,db_password):
         self.db_client = Client(db_name=db_name, user_name=db_user_name,
-                                password=db_password)
+                                password=db_password, host=db_host)
         self.db_client.connect()
         self.db_client.create_all_tables()
 
@@ -103,6 +103,9 @@ if __name__ == "__main__":
                         help='Interval for updating the captured price data '
                              'to DB in seconds. Default: 5',
                         type=int, default=5)
+    parser.add_argument("-h", "--db_host",
+                        help='DB Host',
+                        type=str, required=True)
     parser.add_argument("-n", "--db_name",
                         help='DB Name',
                         type=str, required=True)
@@ -123,6 +126,7 @@ if __name__ == "__main__":
         symbols=parsed_args.cryptocurrency_symbols,
         interval=parsed_args.interval,
         db_name=parsed_args.db_name,
+        db_host=parsed_args.db_host,
         db_user_name=parsed_args.db_user_name,
         db_password=parsed_args.db_password,
         db_update_interval=parsed_args.db_update_interval

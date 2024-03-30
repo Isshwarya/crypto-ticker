@@ -4,7 +4,8 @@ services:
   db:
     container_name: postgresql
     image: postgres
-    
+    networks:
+      - elastic
     ports:
       - 5432:5432
     volumes:
@@ -15,13 +16,14 @@ services:
       - POSTGRES_PASSWORD=secret
     restart: always
   data_receiver:
-    image: data_receiver:latest
+    image: data_receiver_service:latest
     networks:
       - elastic
     environment:
       - POSTGRES_NAME=app_test
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=secret
+      - DB_HOST=db
       - BINANCE_API_KEY=Q2hYHO2MgMrbOtfhqSwRs2lOHKkDHQvWP9bLY1Ndwu3IDygrUpef5csbsowfTcVs
       - BINANCE_API_SECRET=3fwhmOkjAADJVTfTx3xKyiivdTWhucGYMS4jIL1teAsIMtpG1RJ2MCAqgWEIQA6q
     restart: always

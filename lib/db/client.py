@@ -9,14 +9,15 @@ from lib.db.models import BASE
 
 
 class Client(object):
-    def __init__(self, db_name, user_name, password):
+    def __init__(self, db_name, host, user_name, password):
         self.db_name = db_name
+        self.host = host
         self.user_name = user_name
         self.password = password
         self.url = URL.create(
             drivername="postgresql",
             username=self.user_name,
-            host="localhost",
+            host=self.host,
             database=self.db_name,
             password=self.password)
         self.engine = None
