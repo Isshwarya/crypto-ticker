@@ -3,10 +3,11 @@ import asyncio
 import re
 from binance import AsyncClient, BinanceSocketManager
 from datetime import datetime, timedelta
+from pprint import pprint
 
 import lib.logger as logger
 from lib.db.client import Client
-from lib.db.models.crypto_price import CryptoPrice
+from lib.db.models import CryptoPrice, LatestCryptoPrice
 from lib.utils import every
 
 class DataReceiver(object):
@@ -21,7 +22,10 @@ class DataReceiver(object):
         self.db_update_interval = db_update_interval
         self.last_recorded = {}
         for symbol in self.symbols:
-            self.last_recorded[symbol] = datetime.now().replace(microsecond=0)
+            self.last_recorded[symbol] = {
+                "dt": datetime.now().replace(microsecond=0),
+                "price": None
+            }
         # asyncio.run can be used if no other eventloops of asyncio are running
         client = asyncio.run(AsyncClient.create(self.api_key, self.api_secret))
         self.bm = BinanceSocketManager(client)
@@ -41,8 +45,9 @@ class DataReceiver(object):
         price = msg['p']
         trade_dt = datetime.fromtimestamp(timestamp / 1e3).replace(microsecond=0)
         
-        if trade_dt >= self.last_recorded[symbol] + timedelta(seconds=self.capture_interval):
-            self.last_recorded[symbol] = trade_dt
+        if trade_dt >= self.last_recorded[symbol]["dt"] + timedelta(seconds=self.capture_interval):
+            self.last_recorded[symbol]["dt"] = trade_dt
+            self.last_recorded[symbol]["price"] = price
         else:
             # Nothing to do, as for this interval of the time, data was already
             # captured for the respective symbol.
@@ -71,7 +76,19 @@ class DataReceiver(object):
         logger.DEBUG("Updating %d records in DB" % (len(self.crypto_price_objects)))
         self.db_client.store(self.crypto_price_objects)
         self.crypto_price_objects = []
-        
+        latest_crypto_price_objects = []
+        for symbol, details in self.last_recorded.items():
+            latest_crypto_price_objects.append(
+                LatestCryptoPrice(
+                    symbol=symbol,
+                    price=details["price"],
+                    datetime=details["dt"]
+                )
+            )
+        logger.DEBUG("Updating latest price table:\n%s" % 
+            pprint(self.last_recorded, indent=2))
+        self.db_client.store(latest_crypto_price_objects)
+
     def do_work(self):
         try:
             for symbol in self.symbols:

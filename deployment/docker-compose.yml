@@ -15,6 +15,24 @@ services:
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=secret
     restart: always
+  web:
+    image: crypto_ticker:latest
+    ports:
+      - 8010:8010
+      - 8020:8020
+    networks:
+      - elastic
+    environment:
+      - POSTGRES_NAME=app_test
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=secret
+      - DB_HOST=db
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.org
+    restart: always
+    depends_on:
+      - db
   data_receiver:
     image: data_receiver_service:latest
     networks:
