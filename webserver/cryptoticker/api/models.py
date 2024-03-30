@@ -8,8 +8,6 @@ class CustomBaseModel(models.Model):
         self.full_clean()
         return super(CustomBaseModel, self).save(*args, **kwargs)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         abstract = True
 
@@ -26,6 +24,7 @@ class CryptoPrice(CustomBaseModel):
 
     class Meta:
         managed = False
+        db_table = "crypto_price"
 
 class LatestCryptoPrice(CustomBaseModel):
 
@@ -39,3 +38,4 @@ class LatestCryptoPrice(CustomBaseModel):
 
     class Meta:
         managed = False
+        db_table = "latest_crypto_price"

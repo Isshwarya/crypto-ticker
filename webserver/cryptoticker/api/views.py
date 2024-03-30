@@ -14,6 +14,10 @@ class LatestCryptoPriceView(APIView):
     def get(self, request):
         symbol = request.query_params.get('symbol')
         queryset = LatestCryptoPrice.objects.filter(symbol=symbol)
-        return Response({"latest_price": queryset[0].price})
+        return Response(
+            {
+                "latest_price": queryset[0].price,
+                "datetime": queryset[0].datetime
+            })
 
 
