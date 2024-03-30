@@ -103,7 +103,7 @@ if __name__ == "__main__":
                         help='Interval for updating the captured price data '
                              'to DB in seconds. Default: 5',
                         type=int, default=5)
-    parser.add_argument("-h", "--db_host",
+    parser.add_argument("-o", "--db_host",
                         help='DB Host',
                         type=str, required=True)
     parser.add_argument("-n", "--db_name",
