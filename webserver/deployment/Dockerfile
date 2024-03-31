@@ -3,22 +3,18 @@ FROM python:3.9-buster
 # install nginx
 RUN apt-get update && apt-get install nginx vim -y --no-install-recommends
 
-# Copy the workspace
-# TODO: clone from git
-RUN mkdir -p /food-menu-voting
-ADD . /food-menu-voting
-WORKDIR /food-menu-voting
+# git clone
+RUN git clone https://github.com/Isshwarya/crypto-ticker.git
+WORKDIR /crypto-ticker/webserver/cryptoticker
 
 # configure nginx
-RUN cp /food-menu-voting/deployment/nginx.default /etc/nginx/sites-available/default
+RUN cp /crypto-ticker/webserver/deployment/nginx.default /etc/nginx/sites-available/default
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
-# Install dependencies
-RUN pip install -r requirements.txt
-RUN chown -R www-data:www-data /food-menu-voting
+RUN chown -R www-data:www-data /crypto-ticker/webserver/cryptoticker
 
 # start server
 EXPOSE 8020
 STOPSIGNAL SIGTERM
-CMD ["/food-menu-voting/deployment/startup.sh"]
+CMD ["/crypto-ticker/webserver/deployment/startup.sh"]

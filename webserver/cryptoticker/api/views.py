@@ -85,12 +85,13 @@ class CryptoPriceListAPIView(generics.ListAPIView):
                 )
         if end:
             end_dt = datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
-            if end_dt >= datetime.now():
+            now_dt = datetime.now()
+            if end_dt >= now_dt:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST,
                     data={
                         "detail": f"The specified end_datetime {end_dt} "
-                                  "must be lesser than current datetime"
+                                  f"must be lesser than current datetime {now_dt}"
                     }
                 )
 

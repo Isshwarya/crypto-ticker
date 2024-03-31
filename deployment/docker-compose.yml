@@ -9,9 +9,10 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - data001:/var/lib/postgresql/data
+      - data01:/var/lib/postgresql/data
       - ./../db/init-scripts:/docker-entrypoint-initdb.d
     environment:
+      - TZ=Asia/Dubai
       - POSTGRES_DB=app_test
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=secret
@@ -24,6 +25,7 @@ services:
     networks:
       - elastic
     environment:
+      - TZ=Asia/Dubai
       - POSTGRES_NAME=app_test
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=secret
@@ -39,6 +41,7 @@ services:
     networks:
       - elastic
     environment:
+      - TZ=Asia/Dubai
       - POSTGRES_NAME=app_test
       - POSTGRES_USER=app
       - POSTGRES_PASSWORD=secret
@@ -52,7 +55,7 @@ services:
       - db
 
 volumes:
-  data001:
+  data01:
     driver: local
 
 networks:
