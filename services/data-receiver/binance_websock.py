@@ -7,7 +7,7 @@ from pprint import pformat
 
 import lib.logger as logger
 from lib.db.client import Client
-from lib.db.models.schema import CryptoPrice, LatestCryptoPrice
+from lib.db.models.schema import CryptoPrice, LatestCryptoPrice, Settings
 from lib.utils import every
 
 
@@ -48,6 +48,15 @@ class DataReceiver(object):
         rows = self.db_client.get_all(LatestCryptoPrice)
         for row in rows:
             self.last_recorded[row["symbol"]]["id"] = row["id"]
+        self.initialize_settings()
+
+    def initialize_settings(self):
+        dt = datetime.now().replace(microsecond=0)
+        self.db_client.insert(
+            Settings,
+            [{"name": "data_collection_start_date", "value": dt}],
+            ignore_duplicates=True
+        )
 
     def handle_socket_message(self, msg):
         symbol = msg['s']

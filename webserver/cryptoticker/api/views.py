@@ -1,12 +1,13 @@
 import numpy as np
+from datetime import datetime
 from statistics import median
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
 
-from .models import CryptoPrice, LatestCryptoPrice
-from .serializers import CryptoPriceSerializer
+from .models import CryptoPrice, LatestCryptoPrice, Settings
+from .serializers import CryptoPriceSerializer, SettingsSerializer
 from .filters import CryptoPriceFilter
 
 
@@ -42,15 +43,15 @@ class CryptoPriceListAPIView(generics.ListAPIView):
     filterset_class = CryptoPriceFilter
 
     def list(self, request, *args, **kwargs):
+        error_response = self._check_filter_correctness(request)
+        if error_response:
+            return error_response
         response = super(CryptoPriceListAPIView, self).list(
             request, *args, **kwargs)
-        if not response.data.get("count"):
-            return self._check_filter_correctness(request)
-        else:
-            return response
+        return response
 
     @staticmethod
-    def _check_filter_correctness(cls, request):
+    def _check_filter_correctness(request):
         symbol = request.query_params.get('symbol')
         start = request.query_params.get('start_datetime')
         end = request.query_params.get('end_datetime')
@@ -65,8 +66,43 @@ class CryptoPriceListAPIView(generics.ListAPIView):
                         "either not supported or invalid"
                     }
                 )
+        start_dt = None
+        end_dt = None
+        data_collection_start_date = Settings.objects.get(
+            name="data_collection_start_date").value
         if start:
-            pass
+            start_dt = datetime.strptime(
+                start, '%Y-%m-%dT%H:%M:%S')
+            data_collection_start_date_dt = datetime.strptime(
+                data_collection_start_date, '%Y-%m-%d %H:%M:%S')
+            if start_dt < data_collection_start_date_dt:
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={
+                        "detail": f"Data collection started from {data_collection_start_date_dt}, "
+                                  "but the specified start_datetime precedes that"
+                    }
+                )
+        if end:
+            end_dt = datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
+            if end_dt >= datetime.now():
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={
+                        "detail": f"The specified end_datetime {end_dt} "
+                                  "must be lesser than current datetime"
+                    }
+                )
+
+        if start and end:
+            if start_dt > end_dt:
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={
+                        "detail": f"The specified end_datetime {end_dt} "
+                                  f"fails to fall after the start_datetime {start_dt}"
+                    }
+                )
 
 
 class CryptoPriceStatisticsAPIView(CryptoPriceListAPIView):
@@ -79,6 +115,9 @@ class CryptoPriceStatisticsAPIView(CryptoPriceListAPIView):
                     "detail": "symbol is a mandatory query param"
                 }
             )
+        error_response = self._check_filter_correctness(request)
+        if error_response:
+            return error_response
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
 
@@ -86,7 +125,12 @@ class CryptoPriceStatisticsAPIView(CryptoPriceListAPIView):
 
         # No data indicates invalid input
         if not total_count:
-            return self._check_filter_correctness(request)
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={
+                    "detail": "No matching data found"
+                }
+            )
 
         # Calculate additional statistics
         values = queryset.values_list('price', flat=True)

@@ -42,3 +42,17 @@ class LatestCryptoPrice(CustomBaseModel):
     class Meta:
         managed = False
         db_table = "latest_crypto_price"
+
+
+class Settings(CustomBaseModel):
+
+    name = models.CharField("Name", max_length=255, primary_key=True)
+    value = models.TextField("Value")
+
+    def __str__(self):
+        return "Name: {}, Value: {}".format(
+            self.name, self.value)
+
+    class Meta:
+        managed = False
+        db_table = "settings"

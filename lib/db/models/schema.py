@@ -28,3 +28,13 @@ class LatestCryptoPrice(BASE):
         self.symbol = symbol
         self.price = price
         self.datetime = datetime
+
+
+class Settings(BASE):
+    __tablename__ = 'settings'
+    name = Column(String, primary_key=True)
+    value = Column(String)
+
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
