@@ -18,7 +18,7 @@ services:
       - POSTGRES_PASSWORD=secret
     restart: always
   web:
-    image: crypto_ticker:latest
+    image: isshwarya/crypto_ticker:latest
     ports:
       - 8010:8010
       - 8020:8020
@@ -37,7 +37,7 @@ services:
     depends_on:
       - db
   data_receiver:
-    image: data_receiver_service:latest
+    image: isshwarya/data_receiver_service:latest
     networks:
       - elastic
     environment:
@@ -52,10 +52,6 @@ services:
       - DATA_UPDATING_INTERVAL=5
       - SYMBOLS=BNBBTC,BTCUSDT,ETHUSDT
     restart: always
-    command:
-      - /bin/sh
-      - -c
-      - sleep 1000
     depends_on:
       - db
 

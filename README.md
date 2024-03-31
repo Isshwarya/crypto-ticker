@@ -24,7 +24,14 @@ First, install docker-compose
 pip install docker-compose
 ```
 
-Second, instantiate the containers
+Second, pull the necessary images from Dockerhub using
+
+```console
+>>> docker pull isshwarya/crypto_ticker:latest
+>>> docker pull isshwarya/data_receiver_service:latest
+```
+
+Finally, instantiate the containers
 
 ```console
 >> cd crypto-ticker
