@@ -17,4 +17,4 @@ RUN chown -R www-data:www-data /crypto-ticker/webserver/cryptoticker
 # start server
 EXPOSE 8020
 STOPSIGNAL SIGTERM
-CMD ["/crypto-ticker/webserver/deployment/startup.sh"]
+CMD ["sh", "-c", "git pull && /crypto-ticker/webserver/deployment/startup.sh"]
