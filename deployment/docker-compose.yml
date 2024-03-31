@@ -9,7 +9,8 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - data01:/var/lib/postgresql/data
+      - data001:/var/lib/postgresql/data
+      - ./../db/init-scripts:/docker-entrypoint-initdb.d
     environment:
       - POSTGRES_DB=app_test
       - POSTGRES_USER=app
@@ -44,12 +45,14 @@ services:
       - DB_HOST=db
       - BINANCE_API_KEY=Q2hYHO2MgMrbOtfhqSwRs2lOHKkDHQvWP9bLY1Ndwu3IDygrUpef5csbsowfTcVs
       - BINANCE_API_SECRET=3fwhmOkjAADJVTfTx3xKyiivdTWhucGYMS4jIL1teAsIMtpG1RJ2MCAqgWEIQA6q
+      - DATA_CAPTURING_INTERVAL=1
+      - DATA_UPDATING_INTERVAL=5
     restart: always
     depends_on:
       - db
 
 volumes:
-  data01:
+  data001:
     driver: local
 
 networks:

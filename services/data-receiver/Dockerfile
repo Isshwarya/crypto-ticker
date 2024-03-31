@@ -8,4 +8,4 @@ WORKDIR /crypto-ticker
 
 RUN pip install -r /crypto-ticker/services/data-receiver/requirements.txt
 
-CMD ["sh", "-c", "git pull && export PYTHONPATH=. && python /crypto-ticker/services/data-receiver/binance_websock.py -k $BINANCE_API_KEY -s $BINANCE_API_SECRET -d -n $POSTGRES_NAME -u $POSTGRES_USER -p $POSTGRES_PASSWORD -o $DB_HOST"]
+CMD ["sh", "-c", "git pull && export PYTHONPATH=. && python /crypto-ticker/services/data-receiver/binance_websock.py -k $BINANCE_API_KEY -s $BINANCE_API_SECRET -d -n $POSTGRES_NAME -u $POSTGRES_USER -p $POSTGRES_PASSWORD -o $DB_HOST -i $DATA_CAPTURING_INTERVAL -r $DATA_UPDATING_INTERVAL"]

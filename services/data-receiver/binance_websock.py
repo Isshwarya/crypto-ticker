@@ -10,6 +10,7 @@ from lib.db.client import Client
 from lib.db.models.schema import CryptoPrice, LatestCryptoPrice
 from lib.utils import every
 
+
 class DataReceiver(object):
 
     def __init__(self, api_key, api_secret, interval, symbols,
@@ -27,7 +28,7 @@ class DataReceiver(object):
                 "price": None,
                 "id": None
             }
-        
+
         # asyncio.run can be used if no other eventloops of asyncio are running
         client = asyncio.run(AsyncClient.create(self.api_key, self.api_secret))
         self.bm = BinanceSocketManager(client)
@@ -35,7 +36,7 @@ class DataReceiver(object):
         self.initialize_db(db_name, db_host, db_user_name, db_password)
         self.crypto_price_objects = []
 
-    def initialize_db(self, db_name, db_host, db_user_name,db_password):
+    def initialize_db(self, db_name, db_host, db_user_name, db_password):
         self.db_client = Client(db_name=db_name, user_name=db_user_name,
                                 password=db_password, host=db_host)
         self.db_client.connect()
@@ -43,7 +44,7 @@ class DataReceiver(object):
         # To initialize table with rows for each symbol so that later
         # we can always do "update" operation
         self.db_client.insert(LatestCryptoPrice, self.get_latest_crypto_price_objects(),
-                             ignore_duplicates=True)
+                              ignore_duplicates=True)
         rows = self.db_client.get_all(LatestCryptoPrice)
         for row in rows:
             self.last_recorded[row["symbol"]]["id"] = row["id"]
@@ -52,8 +53,9 @@ class DataReceiver(object):
         symbol = msg['s']
         timestamp = msg['T']
         price = msg['p']
-        trade_dt = datetime.fromtimestamp(timestamp / 1e3).replace(microsecond=0)
-        
+        trade_dt = datetime.fromtimestamp(
+            timestamp / 1e3).replace(microsecond=0)
+
         if trade_dt >= self.last_recorded[symbol]["dt"] + timedelta(seconds=self.capture_interval):
             self.last_recorded[symbol]["dt"] = trade_dt
             self.last_recorded[symbol]["price"] = price
@@ -83,7 +85,8 @@ class DataReceiver(object):
         # No need for accessing self.crypto_price_objects with locks
         # as here we are dealing with cooperative multitasking (Coro)
         if self.crypto_price_objects:
-            logger.DEBUG("Inserting %d records in DB" % (len(self.crypto_price_objects)))
+            logger.DEBUG("Inserting %d records in DB" %
+                         (len(self.crypto_price_objects)))
             self.db_client.insert(CryptoPrice, self.crypto_price_objects)
             self.crypto_price_objects = []
         # Updating current latest price in a separate table so that
@@ -96,10 +99,11 @@ class DataReceiver(object):
         # row insert, rather it should be done once for every group of objects
         # added together.
         if self.last_recorded[self.symbols[0]]["price"]:
-            logger.DEBUG("Updating latest price table with data:\n%s" % 
-                pformat(self.last_recorded, indent=2))
-            self.db_client.update(LatestCryptoPrice, self.get_latest_crypto_price_objects())
-        
+            logger.DEBUG("Updating latest price table with data:\n%s" %
+                         pformat(self.last_recorded, indent=2))
+            self.db_client.update(
+                LatestCryptoPrice, self.get_latest_crypto_price_objects())
+
     def get_latest_crypto_price_objects(self):
         latest_crypto_price_objects = []
         for symbol, details in self.last_recorded.items():
@@ -112,19 +116,21 @@ class DataReceiver(object):
                 data["id"] = details["id"]
             latest_crypto_price_objects.append(data)
         return latest_crypto_price_objects
-        
+
     def do_work(self):
         try:
             for symbol in self.symbols:
                 asyncio.ensure_future(self.task_trade_socket(symbol=symbol))
-            asyncio.ensure_future(every(self.db_update_interval, self.flush_to_db))
+            asyncio.ensure_future(
+                every(self.db_update_interval, self.flush_to_db))
             self.loop.run_forever()
         except KeyboardInterrupt:
             logger.INFO("Keyboard Interrupt received")
         finally:
             logger.INFO("Closing Loop")
             self.loop.close()
-    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="A script to capture data for cryptocurrency symbols from Binance")
@@ -138,8 +144,8 @@ if __name__ == "__main__":
                         help='List of Cryptocurrency symbols separated by comma',
                         type=str, default="BNBBTC,BTCUSDT,ETHUSDT")
     parser.add_argument("-i", "--interval",
-                        help='Interval for data capturing in seconds. Default: 1',
-                        type=int, default=1)
+                        help='Interval for data capturing in seconds. Default: 60',
+                        type=int, default=60)
     parser.add_argument("-r", "--db_update_interval",
                         help='Interval for updating the captured price data '
                              'to DB in seconds. Default: 5',
@@ -161,6 +167,7 @@ if __name__ == "__main__":
     parsed_args = parser.parse_args()
     if parsed_args.debug:
         logger.setup_logging(log_level="DEBUG")
+    logger.INFO("configuration: %s" % pformat(vars(parsed_args)))
     receiver = DataReceiver(
         api_key=parsed_args.api_key,
         api_secret=parsed_args.api_secret,

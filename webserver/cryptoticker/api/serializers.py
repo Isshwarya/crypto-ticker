@@ -8,6 +8,7 @@ class CryptoPriceSerializer(serializers.ModelSerializer):
         model = CryptoPrice
         fields = '__all__'
 
+
 class LatestCryptoPriceSerializer(serializers.ModelSerializer):
 
     class Meta:

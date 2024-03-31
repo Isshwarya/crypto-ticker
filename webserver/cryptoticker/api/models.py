@@ -2,6 +2,8 @@ from django.db import models
 
 # A base class to accommodate future changes or features needed
 # across all models
+
+
 class CustomBaseModel(models.Model):
     def save(self, *args, **kwargs):
         # Does validation
@@ -25,6 +27,7 @@ class CryptoPrice(CustomBaseModel):
     class Meta:
         managed = False
         db_table = "crypto_price"
+
 
 class LatestCryptoPrice(CustomBaseModel):
 

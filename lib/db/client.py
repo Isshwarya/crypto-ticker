@@ -43,7 +43,7 @@ class Client(object):
                 self.session.rollback()
                 logger.ERROR(e)
                 raise e
-        
+
     def insert(self, table, objects, ignore_duplicates=False):
         with self.session:
             try:
@@ -82,8 +82,3 @@ class Client(object):
             for entry in output:
                 result.append(vars(entry))
         return result
-
-
-        
-
-        

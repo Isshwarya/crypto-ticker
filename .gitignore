@@ -160,3 +160,4 @@ cython_debug/
 
 # Application specific
 migrations/
+static
