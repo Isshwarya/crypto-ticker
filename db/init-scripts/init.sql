@@ -1,4 +1,3 @@
--- DDL for `crypto_price` table
 CREATE TABLE crypto_price (
     id SERIAL,
     symbol VARCHAR(20),
@@ -8,12 +7,16 @@ CREATE TABLE crypto_price (
     CONSTRAINT unique_symbol_datetime UNIQUE (symbol, datetime)
 ) PARTITION BY RANGE (datetime);
 
--- DDL for `latest_crypto_price` table
 CREATE TABLE latest_crypto_price (
     id SERIAL PRIMARY KEY,
     symbol VARCHAR(20) UNIQUE,
     price FLOAT,
     datetime TIMESTAMP
+);
+
+CREATE TABLE settings (
+    name VARCHAR(255) PRIMARY KEY,
+    value TEXT
 );
 
 CREATE OR REPLACE FUNCTION generate_partition_name(start_date TIMESTAMP, end_date TIMESTAMP)
