@@ -1,5 +1,5 @@
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timezone
 from statistics import median
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -85,7 +85,10 @@ class CryptoPriceListAPIView(generics.ListAPIView):
                 )
         if end:
             end_dt = datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
-            now_dt = datetime.now()
+            import pytz
+            server_timezone = pytz.timezone("Asia/Dubai")
+            now_dt = datetime.now(server_timezone)
+
             if end_dt >= now_dt:
                 return Response(
                     status=status.HTTP_400_BAD_REQUEST,

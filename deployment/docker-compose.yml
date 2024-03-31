@@ -51,6 +51,10 @@ services:
       - DATA_CAPTURING_INTERVAL=1
       - DATA_UPDATING_INTERVAL=5
     restart: always
+    command:
+      - /bin/sh
+      - -c
+      - sleep 1000
     depends_on:
       - db
 
