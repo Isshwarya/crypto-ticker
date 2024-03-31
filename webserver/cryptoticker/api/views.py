@@ -87,7 +87,7 @@ class CryptoPriceListAPIView(generics.ListAPIView):
             end_dt = datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
             import pytz
             server_timezone = pytz.timezone("Asia/Dubai")
-            now_dt = datetime.now(server_timezone)
+            now_dt = datetime.now(server_timezone).replace(tzinfo=None)
 
             if end_dt >= now_dt:
                 return Response(
