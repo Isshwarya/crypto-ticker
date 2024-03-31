@@ -8,12 +8,64 @@ To establish a real-time connection to the Binance WebSocket to capture and proc
 
 ## Solution details
 
+This applications collects data for symbols: BNBBTC,BTCUSDT,ETHUSDT by default. This can be customized by specifying different symbols to "SYMBOLS" ENV in deployment/docker-compose.yml.
+
 ### Documentation
 
 https://documenter.getpostman.com/view/18970982/2sA35HVzs2
 
 ### Deployment
 
+Simply deploy the containers using docker-compose. It will deploy the db, initialize the db, start the data collection script (data_receiver service) and the webserver which serves the REST APIs.
+
+First, install docker-compose
+
+```console
+pip install docker-compose
+```
+
+Second, instantiate the containers
+
+```console
+>> cd crypto-ticker
+>> docker-compose -f deployment/docker-compose.yml up -d
+```
+
+This will deploy all the three containers.
+
+Allow these containers to run for few minutes atleast so that enough data gets collected for tracking crypto prices. Then remember to use this datatime range for API requests
+
+Additionally for admin purposes:
+
+- At this point, super user account with username=admin has been created for the django application.
+
+- Go to "http://0.0.0.0:8020/admin" in the browser and login as the created superuser (We use username:admin, password:admin. This can be changed in docker-compose.yml file as needed).
+
+### Example APIs
+
+#### Current Price
+
+```console
+http://0.0.0.0:8020/api/current_price/?symbol=BTCUSDT
+```
+
+#### Historical Price (List Prices)
+
+```console
+http://0.0.0.0:8020/api/crypto_price/?symbol=BTCUSDT&start_datetime=2024-03-31T21:53:27&end_datetime=2024-03-31T22:16:29
+```
+
+#### Statistics
+
+```console
+http://0.0.0.0:8020/api/crypto_price/statistics/?symbol=BTCUSDT&start_datetime=2024-03-31T21:53:27&end_datetime=2024-03-31T22:16:29
+```
+
+NOTE: Depending on where you deployed the webserver and where you are executing the APIs, adjust the hostname
+(0.0.0.0) in the url accordingly.
+
 ## TODOs
 
 - Creation of new partitions should be automated for every week. The necessary stored procedures are already defined and for the month of April 2024, the weekly partitons and listed in initialization DDL file. This is just a quick fix solution in the interest of time. This will not scale. This can be automated by using a cron job which invokes the stored procedure in DB by specifying timestamp ranges. Or the data-receiver service can periodically check what partitions currently exist and create new weekly partitions as needed before every month starts.
+
+- Documentation for internal methods all throughout the code.

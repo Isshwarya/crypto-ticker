@@ -50,6 +50,7 @@ services:
       - BINANCE_API_SECRET=3fwhmOkjAADJVTfTx3xKyiivdTWhucGYMS4jIL1teAsIMtpG1RJ2MCAqgWEIQA6q
       - DATA_CAPTURING_INTERVAL=1
       - DATA_UPDATING_INTERVAL=5
+      - SYMBOLS=BNBBTC,BTCUSDT,ETHUSDT
     restart: always
     command:
       - /bin/sh
