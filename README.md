@@ -71,6 +71,17 @@ http://0.0.0.0:8020/api/crypto_price/statistics/?symbol=BTCUSDT&start_datetime=2
 NOTE: Depending on where you deployed the webserver and where you are executing the APIs, adjust the hostname
 (0.0.0.0) in the url accordingly.
 
+### How to run the tests
+
+The unit test cases can be executed as:
+
+Install all the requirements at crypto-ticker/webserver/requirements.txt either globally or in a virtual environment (recommended). Then run:
+
+```console
+>>> cd crypto-ticker/webserver/cryptoticker
+>>> python manage.py test
+```
+
 ## TODOs
 
 - Creation of new partitions should be automated for every week. The necessary stored procedures are already defined and for the month of April 2024, the weekly partitons and listed in initialization DDL file. This is just a quick fix solution in the interest of time. This will not scale. This can be automated by using a cron job which invokes the stored procedure in DB by specifying timestamp ranges. Or the data-receiver service can periodically check what partitions currently exist and create new weekly partitions as needed before every month starts.
