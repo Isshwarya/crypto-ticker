@@ -5,3 +5,4 @@ numpy==1.24.4
 gunicorn==20.1.0
 psycopg2==2.9.9
 pytz==2024.1
+deepDiff==6.7.1

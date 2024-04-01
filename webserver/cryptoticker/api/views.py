@@ -1,5 +1,5 @@
 import numpy as np
-from datetime import datetime, timezone
+from datetime import datetime
 from statistics import median
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from django_filters import rest_framework as filters
 
 from .models import CryptoPrice, LatestCryptoPrice, Settings
-from .serializers import CryptoPriceSerializer, SettingsSerializer
+from .serializers import CryptoPriceSerializer
 from .filters import CryptoPriceFilter
 
 
